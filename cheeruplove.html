@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pesan Semangat Untukmu ✨💖</title>
+  
+  <!-- Google Fonts: Quicksand & Patrick Hand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tone.js for cute procedural sound effects without external audio assets -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+  
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pastelPink: '#FFF0F5',
+            softPeach: '#FFE4E1',
+            accentPink: '#FF8DA1',
+            deepRose: '#E06277',
+            warmCream: '#FFFDF9',
+          },
+          fontFamily: {
+            sans: ['Quicksand', 'sans-serif'],
+            handwriting: ['"Patrick Hand"', 'cursive'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom floating background animation */
+    @keyframes floatUp {
+      0% {
+        transform: translateY(110vh) scale(0.6) rotate(0deg);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.6;
+      }
+      80% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(-10vh) scale(1.1) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .floating-item {
+      position: fixed;
+      pointer-events: none;
+      z-index: 0;
+      animation: floatUp 14s linear infinite;
+    }
+
+    /* Soft pulse animations */
+    @keyframes gentlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .animate-gentle {
+      animation: gentlePulse 2.5s infinite ease-in-out;
+    }
+
+    /* Envelope 3D fold simulation */
+    .envelope-wrapper {
+      perspective: 1000px;
+    }
+    .letter-paper {
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-[#FFF5F7] via-[#FFF0F3] to-[#FFEBEF] text-[#4A3B43] min-h-screen font-sans relative overflow-x-hidden selection:bg-[#FF8DA1] selection:text-white">
+
+  <div id="floating-bg" class="fixed inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-pink-200 text-deepRose px-5 py-2.5 rounded-full shadow-lg font-semibold text-sm z-50 opacity-0 -translate-y-4 transition-all duration-300 pointer-events-none flex items-center gap-2">
+    <span id="toast-icon">✨</span>
+    <span id="toast-text">Pesan tercopy!</span>
+  </div>
+
+  <main class="relative z-10 max-w-md mx-auto px-5 py-8 md:py-12 flex flex-col items-center min-h-screen justify-between">
+    
+    <!-- Header -->
+    <header class="text-center w-full">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-pink-200/80 text-xs text-deepRose font-semibold shadow-sm mb-3 animate-gentle">
+        <span>💌</span> Spesial untuk yang tersayang
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold text-[#3B2C35] tracking-tight">
+        Semangat ya, Cantik! <span class="text-deepRose">💖</span>
+      </h1>
+      <p class="text-sm md:text-base text-gray-600 mt-2 font-medium">
+        Hari ini mungkin melelahkan, tapi ingat kamu nggak pernah sendiri.
+      </p>
+    </header>
+
+    <section class="w-full my-6 flex flex-col items-center">
+      <div class="envelope-wrapper w-full max-w-sm">
+        
+        <!-- Closed Envelope State -->
+        <div id="envelope-closed" onclick="openEnvelope()" class="cursor-pointer group relative bg-white border-2 border-pink-200/90 hover:border-pink-300 rounded-3xl p-6 shadow-xl shadow-pink-100/60 transition-all duration-300 hover:-translate-y-1 text-center">
+          <div class="w-16 h-16 mx-auto bg-softPeach rounded-2xl flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform">
+            💌
+          </div>
+          <h3 class="font-bold text-lg text-deepRose mt-3">Ada sepucuk surat untukmu</h3>
+          <p class="text-xs text-gray-500 mt-1">Ketuk surat ini untuk membuka isinya 🌸</p>
+          <div class="mt-4 inline-block bg-pink-100/70 text-deepRose px-4 py-1.5 rounded-full text-xs font-semibold group-hover:bg-pink-200 transition-colors">
+            Buka Surat ✨
+          </div>
+        </div>
+
+        <!-- Open Letter State -->
+        <div id="envelope-open" class="hidden relative bg-white/95 backdrop-blur-md border-2 border-pink-200 rounded-3xl p-6 shadow-2xl text-left letter-paper transition-all">
+          <div class="flex justify-between items-center border-b border-pink-100 pb-3 mb-4">
+            <span class="text-xs font-bold text-deepRose bg-pink-50 px-3 py-1 rounded-full">Pesan Dari Hatiku 🌸</span>
+            <button onclick="closeEnvelope()" class="text-gray-400 hover:text-gray-600 text-xs px-2 py-1 rounded-md">
+              Tutup ✕
+            </button>
+          </div>
+
+          <div class="font-handwriting text-xl text-[#3d2e37] leading-relaxed space-y-3">
+            <p>Hai Chelseaa,</p>
+            <p>Terima kasih ya sudah berusaha sebaik mungkin hari ini. Apa pun yang lagi bikin kamu capek, pusing, atau ragu—ingat kalau kamu sudah melangkah sejauh ini dan kamu luar biasa.</p>
+            <p>Tarik napas dalam-dalam, senyum sedikit ya? Aku selalu bangga sama kamu, selalu ada di sisi kamu, dan sayang banget sama kamu!</p>
+            <p class="text-right text-deepRose font-bold pt-2">— Peluk erat dari aku 🥰</p>
+          </div>
+
+          <div class="mt-5 pt-3 border-t border-pink-100 flex gap-2">
+            <button onclick="copyLetter()" class="w-full py-2 bg-pink-50 hover:bg-pink-100 text-deepRose text-xs font-semibold rounded-xl transition flex items-center justify-center gap-1">
+              <span>📋</span> Simpan Kata-kata Ini
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="w-full space-y-3.5">
+      
+      <!-- Virtual Hug Button -->
+      <div class="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-pink-100 shadow-sm flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xs text-gray-500 font-medium">Kirim Peluk Virtual</span>
+          <span class="text-xs font-semibold text-deepRose" id="hug-counter-text">0 pelukan telah dikirim</span>
+        </div>
+        <button id="hug-btn" onclick="sendHug(event)" class="bg-gradient-to-r from-accentPink to-deepRose active:scale-95 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-md shadow-pink-200/50 hover:opacity-95 transition flex items-center gap-1.5">
+          <span>🤗</span> Peluk Aku!
+        </button>
+      </div>
+
+      <!-- Secret Note Generator -->
+      <div class="bg-white/80 backdrop-blur-sm p-4 rounded-2xl border border-pink-100 shadow-sm">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs text-gray-500 font-medium">Pesan Rahasia Hari Ini</span>
+          <button onclick="getRandomQuote()" class="text-xs text-deepRose font-semibold hover:underline flex items-center gap-1">
+            <span>🎲</span> Acak Lagi
+          </button>
+        </div>
+        <div id="quote-box" class="bg-pink-50/60 rounded-xl p-3 border border-pink-100/60 text-sm font-medium text-gray-700 italic min-h-[56px] flex items-center justify-center text-center">
+          "Kamu nggak harus sempurna, cukup lakukan yang terbaik satu per satu ya ✨"
+        </div>
+      </div>
+
+      <!-- Emergency Comfort Button -->
+      <button onclick="toggleEmergencyModal()" class="w-full py-3 px-4 bg-softPeach/70 hover:bg-softPeach border border-pink-200/90 text-deepRose font-semibold rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition shadow-sm active:scale-[0.99]">
+        <span>🚨</span> Tombol Darurat Kalau Lagi Capek Banget
+      </button>
+
+    </section>
+
+    <footer class="w-full mt-8 pt-4 border-t border-pink-200/50 flex flex-col items-center gap-3">
+      <div class="flex gap-2 w-full">
+        <button onclick="copyWebLink()" class="flex-1 py-2.5 bg-white border border-pink-200 text-deepRose text-xs font-semibold rounded-xl shadow-sm hover:bg-pink-50/50 transition flex items-center justify-center gap-1">
+          <span>🔗</span> Salin Link Web Ini
+        </button>
+        <button onclick="playChimeSound()" class="px-3 py-2.5 bg-white border border-pink-200 text-deepRose text-xs font-semibold rounded-xl shadow-sm hover:bg-pink-50/50 transition" title="Nyalakan bunyi manis">
+          🎵 Bell
+        </button>
+      </div>
+      <p class="text-[11px] text-gray-400 font-medium text-center">
+        Dibuat penuh cinta khusus untuk menemani harimu 🧸💕
+      </p>
+    </footer>
+
+  </main>
+
+  <div id="emergency-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-pink-200 transform scale-95 transition-transform duration-300" id="modal-content">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🌱</span>
+          <h2 class="font-bold text-gray-800 text-base">Checklist Santai Sejenak</h2>
+        </div>
+        <button onclick="toggleEmergencyModal()" class="text-gray-400 hover:text-gray-600 text-lg font-bold p-1">
+          ✕
+        </button>
+      </div>
+
+      <p class="text-xs text-gray-500 mb-4 leading-relaxed">
+        Kalau dunia lagi berisik atau pekerjaan lagi berat, yuk luangkan 2 menit lakukan ini:
+      </p>
+
+      <ul class="space-y-2.5 text-xs text-gray-700">
+        <li class="flex items-center gap-3 bg-pink-50/50 p-2.5 rounded-xl">
+          <input type="checkbox" id="chk1" class="w-4 h-4 accent-pink-500 rounded cursor-pointer">
+          <label for="chk1" class="cursor-pointer select-none">Teguk 1 gelas air putih dingin 💧</label>
+        </li>
+        <li class="flex items-center gap-3 bg-pink-50/50 p-2.5 rounded-xl">
+          <input type="checkbox" id="chk2" class="w-4 h-4 accent-pink-500 rounded cursor-pointer">
+          <label for="chk2" class="cursor-pointer select-none">Tarik napas panjang 3 kali perlahan 🌬️</label>
+        </li>
+        <li class="flex items-center gap-3 bg-pink-50/50 p-2.5 rounded-xl">
+          <input type="checkbox" id="chk3" class="w-4 h-4 accent-pink-500 rounded cursor-pointer">
+          <label for="chk3" class="cursor-pointer select-none">Lemaskan pundak & renggangkan leher 💆‍♀️</label>
+        </li>
+        <li class="flex items-center gap-3 bg-pink-50/50 p-2.5 rounded-xl">
+          <input type="checkbox" id="chk4" class="w-4 h-4 accent-pink-500 rounded cursor-pointer">
+          <label for="chk4" class="cursor-pointer select-none">Katakan ke diri sendiri: "Aku udah hebat hari ini" ⭐</label>
+        </li>
+      </ul>
+
+      <div class="mt-5">
+        <button onclick="completeEmergencyCheck()" class="w-full py-2.5 bg-gradient-to-r from-accentPink to-deepRose text-white text-xs font-semibold rounded-xl shadow-md hover:opacity-95 transition">
+          Aku Udah Lebih Enakan 🥰
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Quotes list
+    const cheeringQuotes = [
+      "“Kamu adalah karya terindah yang lagi berkembang. Sabar ya sama prosesmu.” 🌸",
+      "“Bintang paling terang butuh langit yang paling gelap. Kamu pasti bisa lewatin ini!” ✨",
+      "“Jangan lupa makan yang enak ya, energi kamu berharga banget hari ini!” 🍰",
+      "“Dunia beruntung punya seseorang yang sehangat dan sekuat kamu.” 💖",
+      "“Kalau capek, istirahat dulu ya. Jangan berhenti, cuma jeda sebentar kok.” ☕",
+      "“Aku bangga banget sama kamu, baik pas kamu sukses maupun pas kamu cuma berhasil bertahan hari ini.” 🌟",
+      "“Satu hal kecil selesai hari ini udah cukup banget kok. You are enough.” 🌷"
+    ];
+
+    let hugCount = 0;
+    let synth = null;
+
+    // Helper: Initialize Sound Synthesizer via Tone.js
+    function initSynth() {
+      if (!synth) {
+        try {
+          synth = new Tone.PolySynth(Tone.Synth, {
+            oscillator: { type: "sine" },
+            envelope: {
+              attack: 0.01,
+              decay: 0.15,
+              sustain: 0,
+              release: 0.15
+            }
+          }).toDestination();
+          synth.volume.value = -10;
+        } catch (e) {
+          console.warn("Audio Context init fallback", e);
+        }
+      }
+    }
+
+    // Play cute pop note
+    function playPopSound() {
+      try {
+        initSynth();
+        if (Tone.context.state !== 'running') {
+          Tone.start();
+        }
+        if (synth) {
+          synth.triggerAttackRelease("C6", "16n");
+        }
+      } catch (e) {}
+    }
+
+    // Play melodic chord chime
+    function playChimeSound() {
+      try {
+        initSynth();
+        if (Tone.context.state !== 'running') {
+          Tone.start();
+        }
+        if (synth) {
+          synth.triggerAttackRelease(["E5", "G5", "B5", "E6"], "8n");
+          showToast("Denting melodi cinta 🎶", "🎵");
+        }
+      } catch (e) {}
+    }
+
+    function openEnvelope() {
+      playPopSound();
+      document.getElementById('envelope-closed').classList.add('hidden');
+      const letter = document.getElementById('envelope-open');
+      letter.classList.remove('hidden');
+      
+      // Heart sparkles burst
+      confetti({
+        particleCount: 35,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#FF8DA1', '#FFB6C1', '#FFE4E1']
+      });
+    }
+
+    function closeEnvelope() {
+      playPopSound();
+      document.getElementById('envelope-open').classList.add('hidden');
+      document.getElementById('envelope-closed').classList.remove('hidden');
+    }
+
+    function sendHug(event) {
+      playPopSound();
+      hugCount++;
+      const textElement = document.getElementById('hug-counter-text');
+      textElement.textContent = `${hugCount} pelukan hangat terkirim!`;
+
+      // Trigger colorful heart confetti
+      confetti({
+        particleCount: 20,
+        spread: 50,
+        origin: { 
+          x: event.clientX / window.innerWidth || 0.5, 
+          y: event.clientY / window.innerHeight || 0.5 
+        },
+        colors: ['#FF69B4', '#FF8DA1', '#FFC0CB']
+      });
+
+      showToast("Pelukan erat berhasil sampai! 🤗", "💖");
+    }
+
+    function getRandomQuote() {
+      playPopSound();
+      const quoteBox = document.getElementById('quote-box');
+      quoteBox.style.opacity = '0';
+      quoteBox.style.transform = 'translateY(4px)';
+      
+      setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * cheeringQuotes.length);
+        quoteBox.textContent = cheeringQuotes[randomIndex];
+        quoteBox.style.transition = 'all 0.3s ease';
+        quoteBox.style.opacity = '1';
+        quoteBox.style.transform = 'translateY(0)';
+      }, 150);
+    }
+
+    function showToast(message, icon = "✨") {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toast-text');
+      const toastIcon = document.getElementById('toast-icon');
+      
+      toastText.textContent = message;
+      toastIcon.textContent = icon;
+      
+      toast.classList.remove('opacity-0', '-translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-4');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2500);
+    }
+
+    // Safe fallback clipboard copy
+    function copyToClipboard(text) {
+      const tempInput = document.createElement("input");
+      tempInput.style.position = "absolute";
+      tempInput.style.left = "-9999px";
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand("copy");
+      document.body.removeChild(tempInput);
+    }
+
+    function copyLetter() {
+      const letterText = "Hai Chelsea-ku,\n\nTerima kasih ya sudah berusaha sebaik mungkin hari ini. Apa pun yang lagi bikin kamu capek, pusing, atau ragu—ingat kalau kamu sudah melangkah sejauh ini dan kamu luar biasa.\n\nTarik napas dalam-dalam, senyum sedikit ya? Aku selalu bangga sama kamu, selalu ada di sisi kamu, dan sayang banget sama kamu!\n\n— Peluk erat dari aku 🥰";
+      copyToClipboard(letterText);
+      showToast("Surat berhasil disalin ke clipboard! 💌", "📋");
+    }
+
+    function copyWebLink() {
+      const url = window.location.href;
+      copyToClipboard(url);
+      showToast("Link website berhasil disalin! Bagikan ke dia ya 💖", "🔗");
+    }
+
+    function toggleEmergencyModal() {
+      playPopSound();
+      const modal = document.getElementById('emergency-modal');
+      const modalContent = document.getElementById('modal-content');
+      
+      const isHidden = modal.classList.contains('pointer-events-none');
+      if (isHidden) {
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100');
+        modalContent.classList.remove('scale-95');
+        modalContent.classList.add('scale-100');
+      } else {
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        modal.classList.remove('opacity-100');
+        modalContent.classList.add('scale-95');
+        modalContent.classList.remove('scale-100');
+      }
+    }
+
+    function completeEmergencyCheck() {
+      toggleEmergencyModal();
+      showToast("Bangga banget sama kamu! Istirahat ya ❤️", "🌸");
+      confetti({
+        particleCount: 50,
+        spread: 70,
+        origin: { y: 0.5 }
+      });
+    }
+
+    function createFloatingElements() {
+      const container = document.getElementById('floating-bg');
+      const icons = ['💗', '✨', '🌸', '🧸', '☁️', '💕'];
+      const count = 15;
+
+      for (let i = 0; i < count; i++) {
+        const item = document.createElement('div');
+        item.className = 'floating-item select-none';
+        item.textContent = icons[Math.floor(Math.random() * icons.length)];
+        
+        // Random horizontal position, animation duration, and delay
+        item.style.left = `${Math.random() * 95}%`;
+        item.style.fontSize = `${Math.random() * 16 + 16}px`;
+        item.style.animationDuration = `${Math.random() * 8 + 10}s`;
+        item.style.animationDelay = `${Math.random() * 8}s`;
+        
+        container.appendChild(item);
+      }
+    }
+
+    // Start background effect when DOM is ready
+    window.addEventListener('DOMContentLoaded', () => {
+      createFloatingElements();
+    });
+  </script>
+</body>
+</html>
