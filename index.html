@@ -377,15 +377,15 @@
       if (!synth) {
         try {
           synth = new Tone.PolySynth(Tone.Synth, {
-            oscillator: { type: "sine" },
+            oscillator: { type: "triangle" }, // triangle bikin nada lebih empuk & manis
             envelope: {
-              attack: 0.01,
-              decay: 0.15,
-              sustain: 0,
-              release: 0.15
+              attack: 0.005,
+              decay: 0.3,
+              sustain: 0.05,
+              release: 0.6
             }
           }).toDestination();
-          synth.volume.value = -10;
+          synth.volume.value = -8;
         } catch (e) {
           console.warn("Audio Context init fallback", e);
         }
@@ -407,17 +407,24 @@
 
     // Play melodic chord chime
     function playChimeSound() {
-      try {
-        initSynth();
-        if (Tone.context.state !== 'running') {
-          Tone.start();
+          try {
+            initSynth();
+            if (Tone.context.state !== 'running') {
+              Tone.start();
+            }
+            if (synth) {
+              // Melodi twinkle ala kotak musik manis
+              const now = Tone.now();
+              synth.triggerAttackRelease("C6", "16n", now);
+              synth.triggerAttackRelease("E6", "16n", now + 0.08);
+              synth.triggerAttackRelease("G6", "16n", now + 0.16);
+              synth.triggerAttackRelease("B6", "16n", now + 0.24);
+              synth.triggerAttackRelease("C7", "8n", now + 0.32);
+
+              showToast("Ting! Semangat ya ceciii 💖", "✨");
+            }
+          } catch (e) {}
         }
-        if (synth) {
-          synth.triggerAttackRelease(["E5", "G5", "B5", "E6"], "8n");
-          showToast("Denting melodi cinta 🎶", "🎵");
-        }
-      } catch (e) {}
-    }
 
     function openEnvelope() {
       playPopSound();
